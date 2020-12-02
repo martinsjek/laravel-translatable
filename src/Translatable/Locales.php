@@ -7,6 +7,8 @@ use Illuminate\Contracts\Support\Arrayable;
 use Dimsav\Translatable\Exception\LocalesNotDefinedException;
 use Illuminate\Contracts\Config\Repository as ConfigContract;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
+use Illuminate\Support\Facades\Schema;
+use App\Modules\Laracms\Language\Models\Language;
 
 class Locales implements Arrayable, ArrayAccess
 {
@@ -35,7 +37,11 @@ class Locales implements Arrayable, ArrayAccess
 
     public function load(): void
     {
-        $localesConfig = (array) $this->config->get('translatable.locales', []);
+        if(Schema::hasTable('languages')){
+            $localesConfig = Language::getLanguages();
+        }else{
+            $localesConfig = (array) $this->config->get('translatable.locales', []);
+        }
 
         if (empty($localesConfig)) {
             throw new LocalesNotDefinedException('Please make sure you have run "php artisan config:publish dimsav/laravel-translatable" and that the locales configuration is defined.');
